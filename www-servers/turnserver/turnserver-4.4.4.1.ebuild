@@ -30,5 +30,5 @@ src_install() {
 	dodoc AUTHORS README.*
 
 	#systemd
-        systemd_dounit "${FILESDIR}"/${MY_PN}.service
+        systemd_dounit "${FILESDIR}"/${PN}.service
 }
