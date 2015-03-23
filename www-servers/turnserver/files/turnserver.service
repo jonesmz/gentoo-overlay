@@ -1,0 +1,13 @@
+[Unit]
+Description=turnserver daemon
+After=networking.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/turnserver
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
+

@@ -28,4 +28,7 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" MORECMD="cat" install
 	dodoc AUTHORS README.*
+
+	#systemd
+        systemd_dounit "${FILESDIR}"/${MY_PN}.service
 }
