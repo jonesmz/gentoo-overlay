@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
-inherit base eutils
+inherit base eutils systemd
 
 DESCRIPTION="High-performance free open source TURN and STUN Server implementation."
 HOMEPAGE="https://code.google.com/p/rfc5766-turn-server/"
