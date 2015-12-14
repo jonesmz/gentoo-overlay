@@ -119,6 +119,10 @@ src_prepare() {
 	# https://github.com/lathiat/avahi/issues/27
 	epatch "${FILESDIR}"/${PN}-0.6.31-fix-locale-build.patch
 
+	# Fix build under various locales, bug #501664
+	# https://github.com/lathiat/avahi/issues/27
+	epatch "${FILESDIR}"/${PN}-0.6.31-qt5.patch
+
 	# Bug #525832
 	epatch_user
 
