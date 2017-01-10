@@ -20,6 +20,7 @@ IUSE=""
 REQUIRED_USE=""
 
 COMMON_DEPEND="
+	net-misc/lksctp-tools
 "
 
 DEPEND="
