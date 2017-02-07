@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=urbackup
-ExecStart=/usr/bin/urbackupsrv run -c /etc/conf.d/urbackupsrv -w /var/run/urbackup.pid -d
+ExecStart=/usr/bin/urbackupsrv run -c /etc/conf.d/urbackupsrv -w /var/run/urbackup.pid
 
 [Install]
 WantedBy=multi-user.target
