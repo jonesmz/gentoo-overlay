@@ -1,0 +1,11 @@
+--- urbackup-server-2.1.18/urbackupserver/server_update.cpp.orig	2017-02-17 16:08:06.487155817 -0600
++++ urbackup-server-2.1.18/urbackupserver/server_update.cpp	2017-02-17 16:08:22.977558464 -0600
+@@ -29,7 +29,7 @@
+ 
+ namespace
+ {
+-	std::string urbackup_update_url = "http://update4.urbackup.org/";
++	std::string urbackup_update_url = "http://127.0.0.1/";
+ 
+ 	struct SUpdatePlatform
+ 	{

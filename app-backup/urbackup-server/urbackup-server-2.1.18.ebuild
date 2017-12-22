@@ -7,8 +7,8 @@ inherit user systemd
 
 DESCRIPTION="Fast and easily configured backup server"
 HOMEPAGE="https://www.urbackup.org"
-SRC_URI="https://ssl.webpack.de/beta.urbackup.org/Server/${PV}%20beta/${P}.tar.gz"
-S=${WORKDIR}/${P}.0
+SRC_URI="https://www.urbackup.org/downloads/Server/${PV}/${P}.tar.gz"
+S=${WORKDIR}/${P}
 
 SLOT="0"
 LICENSE="AGPL-3"
@@ -23,15 +23,13 @@ RDEPEND="
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}"
 
-PATCHES=(
-	"${FILESDIR}/${P}-autoupdate-code.patch"
-	"${FILESDIR}/${P}-autoupdate-config.patch"
-	"${FILESDIR}/${P}-autoupdate-datafiles.patch"
-	"${FILESDIR}/${P}-autoupdate-ui.patch"
-	"${FILESDIR}/${P}-gcc-fortify.patch"
-	"${FILESDIR}/${P}-gentoo-prefix.patch"
-	"${FILESDIR}/${P}-manpage.patch"
-)
+#PATCHES=(
+#	"${FILESDIR}/${P}-autoupdate-config.patch"
+#	"${FILESDIR}/${P}-autoupdate-datafiles.patch"
+#	"${FILESDIR}/${P}-gcc-fortify.patch"
+#	"${FILESDIR}/${P}-gentoo-prefix.patch"
+#	"${FILESDIR}/${P}-manpage.patch"
+#)
 
 pkg_setup() {
 	enewgroup urbackup
