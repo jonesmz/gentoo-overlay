@@ -2,11 +2,12 @@
 # Distributed under the terms of the AGPLv3+
 # $Header: $
 
-EAPI=6
-inherit wxwidgets l10n systemd
-
+EAPI=7
 PLOCALES="cs da de es fa fr it nl pl pt_BR ru sk uk zh_CN zh_TW"
 PLOCALE_BACKUP="en"
+WX_GTK_VER=3.0-gtk3
+
+inherit wxwidgets l10n systemd
 
 DESCRIPTION="Client for UrBackup server"
 HOMEPAGE="https://www.urbackup.org"
@@ -20,8 +21,8 @@ IUSE="hardened X zlib linguas_cs linguas_da linguas_de linguas_es linguas_fa lin
 
 RDEPEND="
 	dev-db/sqlite
-	X? ( x11-libs/wxGTK:2.9 )
-	>=dev-libs/crypto++-5.1
+	dev-libs/crypto++
+	X? ( x11-libs/wxGTK:* )
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}"
 
@@ -43,25 +44,25 @@ src_configure() {
 }
 
 src_install() {
-	dodir "${EPREFIX}"/usr/share/man/man1
+	dodir /usr/share/man/man1
 	install_locale_docs() {
-	local locale_doc="client/data/lang/$1/urbackup.mo"
-		insinto "${EPREFIX}"/usr/share/locale/$1/LC_MESSAGES
+		local locale_doc="client/data/lang/$1/urbackup.mo"
+		insinto /usr/share/locale/$1/LC_MESSAGES
 		[[ ! -e ${locale_doc} ]] || doins ${locale_doc}
-		}
+	}
 	emake DESTDIR="${D}" install
 	if use X
 		then l10n_for_each_locale_do install_locale_docs
 	fi
-	insinto "${EPREFIX}"/etc/logrotate.d
+	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/logrotate_urbackupclient urbackupclient
 	newconfd defaults_client urbackupclient
 	doinitd "${FILESDIR}"/urbackupclient
 	systemd_dounit "${FILESDIR}"/urbackup-client.service
-	dodir "${EPREFIX}"/etc/urbackup
-	insinto "${EPREFIX}"/etc/urbackup
+	dodir /etc/urbackup
+	insinto /etc/urbackup
 	doins "${FILESDIR}"/snapshot.cfg
-	insinto "${EPREFIX}"/usr/share/urbackup/scripts
+	insinto /usr/share/urbackup/scripts
 	insopts -m0700
 	doins "${FILESDIR}"/btrfs_create_filesystem_snapshot
 	doins "${FILESDIR}"/btrfs_remove_filesystem_snapshot

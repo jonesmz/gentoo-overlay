@@ -2,7 +2,7 @@
 # Distributed under the terms of the AGPLv3+
 # $Header: $
 
-EAPI=6
+EAPI=7
 inherit user systemd
 
 DESCRIPTION="Fast and easily configured backup server"
@@ -19,7 +19,7 @@ RDEPEND="
 	crypt? ( >=dev-libs/crypto++-5.1 )
 	dev-db/sqlite
 	app-arch/zstd
-	fuse? ( sys-fs/fuse )
+	fuse? ( sys-fs/fuse:* )
 	mail? ( >=net-misc/curl-7.2 )
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}"
@@ -48,13 +48,13 @@ src_configure() {
 }
 
 src_install() {
-	dodir "${EPREFIX}"/usr/share/man/man1
+	dodir /usr/share/man/man1
 	emake DESTDIR="${D}" install
-	insinto "${EPREFIX}"/etc/logrotate.d
+	insinto /etc/logrotate.d
 	newins logrotate_urbackupsrv urbackupsrv
 	newconfd defaults_server urbackupsrv
 	doinitd "${FILESDIR}"/urbackupsrv
-	systemd_dounit ${FILESDIR}/urbackup-server.service
+	systemd_dounit "${FILESDIR}"/urbackup-server.service
 	fowners -R urbackup:urbackup "${EPREFIX}/var/lib/urbackup"
 	fowners -R urbackup:urbackup "${EPREFIX}/usr/share/urbackup/www"
 }

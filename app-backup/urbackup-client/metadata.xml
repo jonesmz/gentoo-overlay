@@ -2,8 +2,8 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>gentoo@slated.org</email>
-		<name>Homer</name>
+		<email>gentoo@jonesmz.com</email>
+		<name>Michael Jones</name>
 	</maintainer>
 	<upstream>
 		<remote-id type="github">urbackup-backend</remote-id>
