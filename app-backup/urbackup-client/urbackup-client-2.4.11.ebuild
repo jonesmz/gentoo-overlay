@@ -7,7 +7,7 @@ PLOCALES="cs da de es fa fr it nl pl pt_BR ru sk uk zh_CN zh_TW"
 PLOCALE_BACKUP="en"
 WX_GTK_VER=3.0-gtk3
 
-inherit wxwidgets l10n systemd
+inherit wxwidgets systemd
 
 DESCRIPTION="Client for UrBackup server"
 HOMEPAGE="https://www.urbackup.org"
@@ -45,15 +45,7 @@ src_configure() {
 
 src_install() {
 	dodir /usr/share/man/man1
-	install_locale_docs() {
-		local locale_doc="client/data/lang/$1/urbackup.mo"
-		insinto /usr/share/locale/$1/LC_MESSAGES
-		[[ ! -e ${locale_doc} ]] || doins ${locale_doc}
-	}
 	emake DESTDIR="${D}" install
-	if use X
-		then l10n_for_each_locale_do install_locale_docs
-	fi
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/logrotate_urbackupclient urbackupclient
 	newconfd defaults_client urbackupclient
