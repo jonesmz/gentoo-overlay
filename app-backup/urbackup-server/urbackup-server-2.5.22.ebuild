@@ -8,7 +8,7 @@ inherit user systemd
 DESCRIPTION="Fast and easily configured backup server"
 HOMEPAGE="https://www.urbackup.org"
 SRC_URI="https://beta.urbackup.org/Server/${PV}/${P}.tar.gz"
-S=${WORKDIR}/${P}
+S=${WORKDIR}/${P}.0
 
 SLOT="0"
 LICENSE="AGPL-3"
