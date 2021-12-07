@@ -24,7 +24,7 @@ LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="5/5"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="gpm tinfo unicode"
+IUSE="gpm tinfo unicode versyms"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
 # Block the ncurses-5 that installs the same lib. #557472
