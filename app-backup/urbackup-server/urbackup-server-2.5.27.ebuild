@@ -3,12 +3,12 @@
 # $Header: $
 
 EAPI=7
-inherit user systemd
+inherit systemd
 
 DESCRIPTION="Fast and easily configured backup server"
 HOMEPAGE="https://www.urbackup.org"
-SRC_URI="https://www.urbackup.org/downloads/Server/${PV}/${P}.tar.gz"
-S=${WORKDIR}/${P}
+SRC_URI="https://hndl.urbackup.org/Server/${PV}/${P}.tar.gz"
+S=${WORKDIR}/${P}.0
 
 SLOT="0"
 LICENSE="AGPL-3"
@@ -16,6 +16,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE="crypt hardened fuse mail zlib"
 
 RDEPEND="
+	acct-user/urbackup
+	acct-group/urbackup
 	crypt? ( >=dev-libs/crypto++-5.1 )
 	dev-db/sqlite
 	app-arch/zstd
@@ -31,11 +33,6 @@ DEPEND="${RDEPEND}"
 #	"${FILESDIR}/${P}-gentoo-prefix.patch"
 #	"${FILESDIR}/${P}-manpage.patch"
 #)
-
-pkg_setup() {
-	enewgroup urbackup
-	enewuser urbackup -1 /bin/bash "${EPREFIX}"/var/lib/urbackup urbackup
-}
 
 src_configure() {
 	econf \

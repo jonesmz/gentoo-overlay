@@ -20,6 +20,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE="hardened X zlib linguas_cs linguas_da linguas_de linguas_es linguas_fa linguas_fr linguas_it linguas_nl linguas_pl linguas_pt_BR linguas_ru linguas_sk linguas_uk linguas_zh_CN linguas_zh_TW"
 
 RDEPEND="
+	acct-user/urbackup
+	acct-group/urbackup
 	dev-db/sqlite
 	dev-libs/crypto++
 	X? ( x11-libs/wxGTK:* )
