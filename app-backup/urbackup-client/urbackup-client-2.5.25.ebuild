@@ -11,7 +11,7 @@ inherit wxwidgets systemd
 
 DESCRIPTION="Client for UrBackup server"
 HOMEPAGE="https://www.urbackup.org"
-SRC_URI="https://www.urbackup.org/downloads/Client/${PV}/${P}.tar.gz"
+SRC_URI="https://hndl.urbackup.org/Client/${PV}/${P}.tar.gz"
 S=${WORKDIR}/${P}.0
 
 SLOT="0"
