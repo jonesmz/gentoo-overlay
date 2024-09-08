@@ -1,1 +1,1 @@
-USE="wayland -wifi -bluetooth"
+USE="-wifi -bluetooth"
