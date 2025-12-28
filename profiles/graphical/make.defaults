@@ -1,1 +1,2 @@
-USE="wayland"
+USE="wayland pulseaudio gstreamer gnome-keyring vaapi"
+VIDEO_CARDS="vesa modesetting radeon radeonsi amdgpu"
