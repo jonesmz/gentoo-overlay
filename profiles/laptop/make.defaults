@@ -1,1 +1,1 @@
-USE="wifi"
+USE="${USE} wifi"

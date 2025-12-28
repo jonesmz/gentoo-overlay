@@ -1,1 +1,1 @@
-USE="wayland pulseaudio gstreamer gnome-keyring vaapi"
+USE="${USE} wayland pulseaudio gstreamer gnome-keyring vaapi"

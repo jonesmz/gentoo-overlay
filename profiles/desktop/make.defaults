@@ -1,1 +1,1 @@
-USE="-wifi -bluetooth"
+USE="${USE} -wifi -bluetooth"
