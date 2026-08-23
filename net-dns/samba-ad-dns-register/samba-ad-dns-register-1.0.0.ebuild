@@ -11,7 +11,7 @@ S="${WORKDIR}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~x86"
+KEYWORDS="amd64 arm arm64 x86"
 
 # net-misc/networkd-dispatcher provides /etc/networkd-dispatcher/routable.d
 # net-fs/samba provides the `net` binary used by the hook
