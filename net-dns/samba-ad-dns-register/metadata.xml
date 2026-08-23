@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>gentoo@jonesmz.com</email>
+		<name>Michael Jones</name>
+	</maintainer>
+	<longdescription>
+		Installs a networkd-dispatcher "routable" hook that runs
+		'net ads dns register --machine-pass' whenever a network interface
+		becomes routable. Samba Active Directory domain members do not
+		periodically refresh their own DNS records the way Windows clients do
+		(records are only created at join time), so member A/AAAA records can
+		go missing or stale. This hook restores netlogon-like behaviour by
+		re-registering the host in the authoritative Samba AD DNS zone on
+		initial address assignment and on IP changes. Behaviour is tunable via
+		/etc/conf.d/samba-ad-dns-register (enable/disable, interface allow-list,
+		net binary path, extra register arguments).
+	</longdescription>
+	<upstream>
+		<remote-id type="github">jonesmz/gentoo-overlay</remote-id>
+	</upstream>
+</pkgmetadata>

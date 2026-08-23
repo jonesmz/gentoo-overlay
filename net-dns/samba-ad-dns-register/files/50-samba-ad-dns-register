@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# networkd-dispatcher hook: register this host's DNS records in the Samba
+# Active Directory zone whenever an interface becomes routable.
+#
+# Samba AD domain members (unlike Windows clients) do not periodically
+# re-register their DNS records. Records are created once at join time and
+# never refreshed. This hook restores Windows-netlogon-like behaviour by
+# running `net ads dns register` each time a link becomes routable (initial
+# lease and IP changes both transition the link back through routable).
+#
+# Installed by: net-dns/samba-ad-dns-register
+#
+# networkd-dispatcher invokes routable.d/ scripts with, among others:
+#   IFACE              - the interface name (e.g. eth0)
+#   OperationalState   - should be "routable" when run from routable.d
+#   AdministrativeState
+#   IP_ADDRS / IP6_ADDRS - space separated addresses on the link
+#
+# Configuration (optional), sourced from /etc/conf.d/samba-ad-dns-register
+# if present:
+#   SAMBA_AD_DNS_REGISTER_ENABLE   - set to "no" to disable (default: yes)
+#   SAMBA_AD_DNS_REGISTER_IFACES   - space separated allow-list of interfaces
+#                                    to act on. Empty = all non-virtual.
+#   SAMBA_AD_DNS_REGISTER_NET      - path to the `net` binary (default: net in PATH)
+#   SAMBA_AD_DNS_REGISTER_ARGS     - extra args passed to `net ads dns register`
+#
+set -u
+
+TAG="samba-ad-dns-register"
+
+log() { logger -t "${TAG}" -- "$*"; }
+
+# --- load optional configuration -------------------------------------------
+CONF="/etc/conf.d/samba-ad-dns-register"
+# shellcheck disable=SC1090
+[ -r "${CONF}" ] && . "${CONF}"
+
+ENABLE="${SAMBA_AD_DNS_REGISTER_ENABLE:-yes}"
+IFACES_ALLOW="${SAMBA_AD_DNS_REGISTER_IFACES:-}"
+NET_BIN="${SAMBA_AD_DNS_REGISTER_NET:-net}"
+EXTRA_ARGS="${SAMBA_AD_DNS_REGISTER_ARGS:-}"
+
+case "${ENABLE}" in
+	[Nn][Oo]|0|false|FALSE) exit 0 ;;
+esac
+
+# --- only act on genuine routable transitions -------------------------------
+# When run from routable.d this should already be the case, but guard anyway.
+if [ "${OperationalState:-}" != "routable" ]; then
+	exit 0
+fi
+
+IFACE="${IFACE:-}"
+if [ -z "${IFACE}" ]; then
+	exit 0
+fi
+
+# --- interface filtering ----------------------------------------------------
+# Skip loopback and common virtual/bridge/container interfaces to avoid
+# registering addresses that should not appear in AD DNS. If an explicit
+# allow-list is configured, honour only that.
+if [ -n "${IFACES_ALLOW}" ]; then
+	_ok="no"
+	for _i in ${IFACES_ALLOW}; do
+		[ "${_i}" = "${IFACE}" ] && _ok="yes"
+	done
+	[ "${_ok}" = "yes" ] || exit 0
+else
+	case "${IFACE}" in
+		lo|docker*|veth*|virbr*|br-*|tap*|tun*|kube*|cni*|flannel*|zt*|wg*)
+			exit 0
+			;;
+	esac
+fi
+
+# --- locate net -------------------------------------------------------------
+if ! command -v "${NET_BIN}" >/dev/null 2>&1; then
+	log "ERROR: '${NET_BIN}' not found; cannot register DNS for ${IFACE}"
+	exit 0
+fi
+
+# --- register ---------------------------------------------------------------
+# `net ads dns register` with no FQDN/IP registers this host's own name with
+# its current interface addresses. --machine-pass authenticates using the
+# machine account credentials from secrets.tdb, required because the AD zone
+# uses secure dynamic updates.
+log "link ${IFACE} routable; registering AD DNS via 'net ads dns register --machine-pass'"
+
+# shellcheck disable=SC2086
+if out="$("${NET_BIN}" ads dns register --machine-pass ${EXTRA_ARGS} 2>&1)"; then
+	log "AD DNS registration succeeded for ${IFACE}${out:+: ${out}}"
+else
+	rc=$?
+	log "AD DNS registration FAILED for ${IFACE} (rc=${rc})${out:+: ${out}}"
+fi
+
+exit 0

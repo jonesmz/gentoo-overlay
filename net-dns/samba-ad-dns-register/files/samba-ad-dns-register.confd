@@ -1,0 +1,21 @@
+# Configuration for net-dns/samba-ad-dns-register
+#
+# This file is sourced by the networkd-dispatcher hook
+# /etc/networkd-dispatcher/routable.d/50-samba-ad-dns-register
+# whenever an interface becomes routable.
+
+# Set to "no" to disable AD DNS registration without removing the package.
+#SAMBA_AD_DNS_REGISTER_ENABLE="yes"
+
+# Space separated allow-list of interfaces to register. When empty (default),
+# all interfaces are eligible except loopback and common virtual/container
+# interfaces (docker*, veth*, virbr*, br-*, tap*, tun*, wg*, zt*, ...).
+# Example: only register the primary LAN interface.
+#SAMBA_AD_DNS_REGISTER_IFACES="eth0"
+
+# Path to the Samba `net` binary, if not on PATH.
+#SAMBA_AD_DNS_REGISTER_NET="/usr/bin/net"
+
+# Extra arguments appended to `net ads dns register`.
+# Example: register an explicit FQDN and IP instead of autodetecting.
+#SAMBA_AD_DNS_REGISTER_ARGS=""

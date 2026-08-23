@@ -1,0 +1,9 @@
+DEFINED_PHASES=install postinst
+DESCRIPTION=networkd-dispatcher hook to register a host's records in Samba AD DNS
+EAPI=8
+HOMEPAGE=https://github.com/jonesmz/gentoo-overlay
+KEYWORDS=~amd64 ~arm ~arm64 ~x86
+LICENSE=GPL-2
+RDEPEND=net-misc/networkd-dispatcher net-fs/samba sys-apps/util-linux
+SLOT=0
+_md5_=3215d967b5c9f692ac83e9b5943c25ab

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>gentoo@jonesmz.com</email>
+		<name>Michael Jones</name>
+	</maintainer>
+	<longdescription>
+		networkd-dispatcher is a dispatcher daemon for systemd-networkd
+		connection status changes, similar to NetworkManager-dispatcher. It
+		listens over D-Bus for systemd-networkd operational state changes and
+		runs executable, root-owned scripts placed in per-state directories
+		(routable.d, dormant.d, etc.) under /etc/networkd-dispatcher and
+		/usr/lib/networkd-dispatcher.
+	</longdescription>
+	<use>
+		<flag name="wifi">Install net-wireless/iw for wireless interface (ESSID) support</flag>
+	</use>
+	<upstream>
+		<remote-id type="gitlab">craftyguy/networkd-dispatcher</remote-id>
+	</upstream>
+</pkgmetadata>
