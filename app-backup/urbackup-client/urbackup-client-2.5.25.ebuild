@@ -2,10 +2,10 @@
 # Distributed under the terms of the AGPLv3+
 # $Header: $
 
-EAPI=7
+EAPI=8
 PLOCALES="cs da de es fa fr it nl pl pt_BR ru sk uk zh_CN zh_TW"
 PLOCALE_BACKUP="en"
-WX_GTK_VER=3.0-gtk3
+WX_GTK_VER=3.2-gtk3
 
 inherit wxwidgets systemd
 
@@ -14,8 +14,8 @@ HOMEPAGE="https://www.urbackup.org"
 SRC_URI="https://hndl.urbackup.org/Client/${PV}/${P}.tar.gz"
 S=${WORKDIR}/${P}.0
 
-SLOT="0"
 LICENSE="AGPL-3"
+SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="hardened X zlib linguas_cs linguas_da linguas_de linguas_es linguas_fa linguas_fr linguas_it linguas_nl linguas_pl linguas_pt_BR linguas_ru linguas_sk linguas_uk linguas_zh_CN linguas_zh_TW"
 
@@ -24,8 +24,8 @@ RDEPEND="
 	acct-group/urbackup
 	dev-db/sqlite
 	dev-libs/crypto++
-	X? ( x11-libs/wxGTK:* )
-	zlib? ( sys-libs/zlib )"
+	X? ( x11-libs/wxGTK:${WX_GTK_VER} )
+	zlib? ( virtual/zlib )"
 DEPEND="${RDEPEND}"
 
 #PATCHES=(
@@ -38,6 +38,11 @@ DEPEND="${RDEPEND}"
 #)
 
 src_configure() {
+	# The wxwidgets eclass no longer runs setup-wxwidgets automatically
+	# (EAPI 8); call it explicitly, and only when building the GUI (X), since
+	# wxGTK is a hard requirement of that path.
+	use X && setup-wxwidgets
+
 	econf \
 	$(use_enable hardened fortify) \
 	$(use_enable !X headless) \
@@ -53,7 +58,6 @@ src_install() {
 	newconfd defaults_client urbackupclient
 	doinitd "${FILESDIR}"/urbackupclient
 	systemd_dounit "${FILESDIR}"/urbackup-client.service
-	dodir /etc/urbackup
 	insinto /etc/urbackup
 	doins "${FILESDIR}"/snapshot.cfg
 	insinto /usr/share/urbackup/scripts

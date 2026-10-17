@@ -6,7 +6,7 @@
 		<name>Michael Jones</name>
 	</maintainer>
 	<upstream>
-		<remote-id type="github">urbackup-backend</remote-id>
+		<remote-id type="github">uroni/urbackup_backend</remote-id>
 	</upstream>
 	<longdescription>UrBackup is an easy to setup Open Source client/server backup system, that through a combination of image (currently on Windows only) and file backups accomplishes both data safety and a fast restoration time.
 	

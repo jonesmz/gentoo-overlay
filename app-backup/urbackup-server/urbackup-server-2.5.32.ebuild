@@ -2,7 +2,7 @@
 # Distributed under the terms of the AGPLv3+
 # $Header: $
 
-EAPI=7
+EAPI=8
 inherit systemd
 
 DESCRIPTION="Fast and easily configured backup server"
@@ -10,8 +10,8 @@ HOMEPAGE="https://www.urbackup.org"
 SRC_URI="https://hndl.urbackup.org/Server/${PV}/${P}.tar.gz"
 S=${WORKDIR}/${P}
 
-SLOT="0"
 LICENSE="AGPL-3"
+SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="crypt hardened fuse mail zlib"
 
@@ -23,7 +23,7 @@ RDEPEND="
 	app-arch/zstd
 	fuse? ( sys-fs/fuse:* )
 	mail? ( >=net-misc/curl-7.2 )
-	zlib? ( sys-libs/zlib )"
+	zlib? ( virtual/zlib )"
 DEPEND="${RDEPEND}"
 
 #PATCHES=(
@@ -52,6 +52,6 @@ src_install() {
 	newconfd defaults_server urbackupsrv
 	doinitd "${FILESDIR}"/urbackupsrv
 	systemd_dounit "${FILESDIR}"/urbackup-server.service
-	fowners -R urbackup:urbackup "${EPREFIX}/var/lib/urbackup"
-	fowners -R urbackup:urbackup "${EPREFIX}/usr/share/urbackup/www"
+	fowners -R urbackup:urbackup /var/lib/urbackup
+	fowners -R urbackup:urbackup /usr/share/urbackup/www
 }
