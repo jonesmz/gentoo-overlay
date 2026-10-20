@@ -30,6 +30,14 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="doc? ( app-text/asciidoc )"
 
+PATCHES=(
+	# Skip non-executable files in state directories silently instead of
+	# logging an error per file. Lets Portage's keepdir .keep markers (and
+	# editor swap/backup files, READMEs, etc.) coexist with real hooks
+	# without spamming the journal on every networkd state transition.
+	"${FILESDIR}/${P}-skip-nonexecutable-files.patch"
+)
+
 src_compile() {
 	# The only build artifact is the optional manpage, produced from
 	# networkd-dispatcher.txt via a2x (asciidoc).
@@ -49,7 +57,9 @@ src_install() {
 
 	# State directories that dispatcher scans. /etc for local overrides,
 	# /usr/lib for package-provided scripts. Create the full set upstream
-	# documents so hooks can be dropped in without mkdir.
+	# documents so hooks can be dropped in without mkdir. The keepdir .keep
+	# markers are harmless here because the skip-nonexecutable-files patch
+	# makes dispatcher ignore non-executable entries silently.
 	local state
 	for state in routable dormant no-carrier off carrier degraded \
 			configuring configured; do

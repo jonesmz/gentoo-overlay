@@ -1,0 +1,29 @@
+Skip non-executable files silently instead of logging an error.
+
+networkd-dispatcher scans every entry in each state directory and logs
+"Unable to execute script, check file mode" for any file lacking the user
+execute bit. That treats ordinary non-script files as errors: Portage's
+keepdir marker (.keep_*), editor swap/backup files, READMEs dropped next to
+hooks, etc. These are not broken hooks and the repeated error lines are noise
+on every state transition.
+
+Silently skip files that are not executable. Keep erroring on files that ARE
+executable but not root-owned, since a non-root-owned executable hook is a
+real security concern worth surfacing.
+
+--- a/networkd-dispatcher
++++ b/networkd-dispatcher
+@@ -170,10 +170,10 @@ def scripts_in_path(path, subdir):
+ 
+             if os.path.isfile(pathname):
+                 entry = os.stat(pathname)
+-                # Make sure script can be executed
++                # Silently skip anything that is not executable: Portage
++                # .keep markers, editor swap/backup files, READMEs, etc.
+                 if not stat.S_IXUSR & entry.st_mode:
+-                    logger.error("Unable to execute script, check file mode: "
+-                                 "%s", pathname)
++                    logger.debug("Skipping non-executable file: %s", pathname)
+                 # Make sure script is owned by root
+                 elif entry.st_uid != 0 or entry.st_gid != 0:
+                     logger.error("Unable to execute script, check file perms: "
