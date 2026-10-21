@@ -80,19 +80,39 @@ if ! command -v "${NET_BIN}" >/dev/null 2>&1; then
 	exit 0
 fi
 
+# --- determine the name and address(es) being registered --------------------
+# `net ads dns register` with no explicit FQDN/IP registers this host's own
+# name with its current interface addresses. We resolve the same values here
+# purely so the journal records exactly what was registered. If the admin has
+# pinned an explicit FQDN/IP via SAMBA_AD_DNS_REGISTER_ARGS we surface that
+# instead, since that is what net will actually use.
+REG_NAME="$(hostname -f 2>/dev/null || hostname 2>/dev/null || echo "${HOSTNAME:-unknown}")"
+
+# Addresses networkd-dispatcher reported for this link, if any; otherwise
+# fall back to querying the interface directly. Filter to global-scope.
+REG_ADDRS=""
+if [ -n "${IP_ADDRS:-}" ] || [ -n "${IP6_ADDRS:-}" ]; then
+	REG_ADDRS="$(printf '%s %s' "${IP_ADDRS:-}" "${IP6_ADDRS:-}" | tr -s ' ')"
+elif command -v ip >/dev/null 2>&1; then
+	REG_ADDRS="$(ip -o addr show dev "${IFACE}" scope global 2>/dev/null \
+		| awk '{print $4}' | cut -d/ -f1 | tr '\n' ' ')"
+fi
+REG_ADDRS="${REG_ADDRS#"${REG_ADDRS%%[![:space:]]*}"}" # ltrim
+REG_ADDRS="${REG_ADDRS%"${REG_ADDRS##*[![:space:]]}"}" # rtrim
+[ -n "${EXTRA_ARGS}" ] && REG_NAME="${REG_NAME} (+args: ${EXTRA_ARGS})"
+: "${REG_ADDRS:=<autodetected by net>}"
+
 # --- register ---------------------------------------------------------------
-# `net ads dns register` with no FQDN/IP registers this host's own name with
-# its current interface addresses. --machine-pass authenticates using the
-# machine account credentials from secrets.tdb, required because the AD zone
-# uses secure dynamic updates.
-log "link ${IFACE} routable; registering AD DNS via 'net ads dns register --machine-pass'"
+# --machine-pass authenticates using the machine account credentials from
+# secrets.tdb, required because the AD zone uses secure dynamic updates.
+log "link ${IFACE} routable; registering AD DNS name '${REG_NAME}' with address(es) [${REG_ADDRS}]"
 
 # shellcheck disable=SC2086
 if out="$("${NET_BIN}" ads dns register --machine-pass ${EXTRA_ARGS} 2>&1)"; then
-	log "AD DNS registration succeeded for ${IFACE}${out:+: ${out}}"
+	log "AD DNS registration SUCCEEDED: name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
 else
 	rc=$?
-	log "AD DNS registration FAILED for ${IFACE} (rc=${rc})${out:+: ${out}}"
+	log "AD DNS registration FAILED (rc=${rc}): name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
 fi
 
 exit 0

@@ -20,6 +20,7 @@ RDEPEND="
 	net-misc/networkd-dispatcher
 	net-fs/samba
 	sys-apps/util-linux
+	sys-apps/iproute2
 "
 
 src_install() {
