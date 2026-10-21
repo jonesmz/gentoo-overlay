@@ -40,6 +40,12 @@ ENABLE="${SAMBA_AD_DNS_REGISTER_ENABLE:-yes}"
 IFACES_ALLOW="${SAMBA_AD_DNS_REGISTER_IFACES:-}"
 NET_BIN="${SAMBA_AD_DNS_REGISTER_NET:-net}"
 EXTRA_ARGS="${SAMBA_AD_DNS_REGISTER_ARGS:-}"
+# Retry tuning. At boot the link can be routable before a domain controller is
+# reachable / DNS resolves / the clock is synced, so the first attempt often
+# fails transiently ("No logon servers are currently available"). Retry a few
+# times with a fixed delay before giving up.
+RETRIES="${SAMBA_AD_DNS_REGISTER_RETRIES:-5}"
+RETRY_DELAY="${SAMBA_AD_DNS_REGISTER_RETRY_DELAY:-10}"
 
 case "${ENABLE}" in
 	[Nn][Oo]|0|false|FALSE) exit 0 ;;
@@ -105,14 +111,32 @@ REG_ADDRS="${REG_ADDRS%"${REG_ADDRS##*[![:space:]]}"}" # rtrim
 # --- register ---------------------------------------------------------------
 # --machine-pass authenticates using the machine account credentials from
 # secrets.tdb, required because the AD zone uses secure dynamic updates.
-log "link ${IFACE} routable; registering AD DNS name '${REG_NAME}' with address(es) [${REG_ADDRS}]"
+#
+# Retry on transient failures: at boot the link may be routable before a DC is
+# reachable, DNS resolves, or the clock is synced. `net ads dns register`
+# returns non-zero in those cases (e.g. "No logon servers are currently
+# available"), and a later attempt usually succeeds. Attempt up to
+# RETRIES+1 times, sleeping RETRY_DELAY seconds between tries.
+log "link ${IFACE} routable; registering AD DNS name '${REG_NAME}' with address(es) [${REG_ADDRS}] (up to $((RETRIES + 1)) attempt(s))"
 
-# shellcheck disable=SC2086
-if out="$("${NET_BIN}" ads dns register --machine-pass ${EXTRA_ARGS} 2>&1)"; then
-	log "AD DNS registration SUCCEEDED: name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
-else
+attempt=0
+rc=0
+out=""
+while :; do
+	attempt=$((attempt + 1))
+	# shellcheck disable=SC2086
+	out="$("${NET_BIN}" ads dns register --machine-pass ${EXTRA_ARGS} 2>&1)"
 	rc=$?
-	log "AD DNS registration FAILED (rc=${rc}): name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
-fi
+	if [ "${rc}" -eq 0 ]; then
+		log "AD DNS registration SUCCEEDED on attempt ${attempt}: name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
+		exit 0
+	fi
 
-exit 0
+	if [ "${attempt}" -gt "${RETRIES}" ]; then
+		log "AD DNS registration FAILED after ${attempt} attempt(s) (rc=${rc}): name '${REG_NAME}' address(es) [${REG_ADDRS}] on ${IFACE}${out:+ -- ${out}}"
+		exit 0
+	fi
+
+	log "AD DNS registration attempt ${attempt} failed (rc=${rc}), retrying in ${RETRY_DELAY}s${out:+ -- ${out}}"
+	sleep "${RETRY_DELAY}"
+done

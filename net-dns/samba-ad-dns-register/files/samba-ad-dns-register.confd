@@ -27,3 +27,13 @@
 # Extra arguments appended to `net ads dns register`.
 # Example: register an explicit FQDN and IP instead of autodetecting.
 #SAMBA_AD_DNS_REGISTER_ARGS=""
+
+# Retry behaviour. At boot the link can become routable before a domain
+# controller is reachable, DNS resolves, or the clock is synced, so the first
+# attempt may fail transiently ("No logon servers are currently available").
+# The hook retries before giving up.
+#   RETRIES      - number of extra attempts after the first (default: 5,
+#                  i.e. up to 6 tries total). Set to 0 to disable retrying.
+#   RETRY_DELAY  - seconds to sleep between attempts (default: 10).
+#SAMBA_AD_DNS_REGISTER_RETRIES="5"
+#SAMBA_AD_DNS_REGISTER_RETRY_DELAY="10"
