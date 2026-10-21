@@ -18,6 +18,12 @@ IUSE="doc wifi"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
+# sys-apps/systemd provides networkd (the daemon we dispatch for) and the
+# waiter units referenced by our ordering drop-in:
+#   systemd-networkd-wait-online.service (gates network-online.target) and
+#   systemd-time-wait-sync.service       (gates time-sync.target).
+# The binaries always ship with systemd; those units must be ENABLED by the
+# admin for the ordering to take effect (see pkg_postinst).
 RDEPEND="
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
@@ -100,9 +106,19 @@ pkg_postinst() {
 	elog
 	elog "A drop-in (10-network-online.conf) orders the dispatcher after"
 	elog "network-online.target, systemd-resolved, nss-lookup and time-sync so"
-	elog "startup-trigger hooks run once the network is usable. For that barrier"
-	elog "to actually wait, enable a wait-online service:"
+	elog "startup-trigger hooks run once the network is usable."
+	elog
+	elog "IMPORTANT: those targets are hollow unless their waiter services are"
+	elog "enabled. network-online.target is reached immediately, and"
+	elog "time-sync.target likewise, if nothing gates them -- so the ordering"
+	elog "above has NO effect until you enable BOTH:"
 	elog "  systemctl enable systemd-networkd-wait-online.service"
-	elog "Even so, hooks contacting remote services should tolerate transient"
-	elog "boot-time failures (e.g. net-dns/samba-ad-dns-register retries)."
+	elog "  systemctl enable systemd-time-wait-sync.service"
+	elog "The first makes network-online.target wait for a routable link with"
+	elog "addresses (past DHCP/DNS); the second makes time-sync.target wait for"
+	elog "the clock to sync (needed by Kerberos-based hooks)."
+	elog
+	elog "Even with both enabled, hooks contacting remote services should still"
+	elog "tolerate transient boot-time failures (e.g. the retry loop in"
+	elog "net-dns/samba-ad-dns-register)."
 }
