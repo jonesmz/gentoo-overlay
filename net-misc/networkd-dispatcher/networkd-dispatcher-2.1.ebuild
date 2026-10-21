@@ -57,6 +57,11 @@ src_install() {
 	# --run-startup-triggers is enabled by default (see files/*.conf).
 	newconfd "${FILESDIR}/${PN}.conf" "${PN}.conf"
 
+	# Drop-in ordering the dispatcher after the network is usable, so that
+	# startup-trigger hooks have a routable link, name resolution, and a
+	# synced clock. See files/10-network-online.conf.
+	systemd_install_dropin "${PN}.service" "${FILESDIR}/10-network-online.conf"
+
 	# State directories that dispatcher scans. /etc for local overrides,
 	# /usr/lib for package-provided scripts. Create the full set upstream
 	# documents so hooks can be dropped in without mkdir. The keepdir .keep
@@ -92,4 +97,12 @@ pkg_postinst() {
 	elog "not only on a later state transition. Remove the flag there to revert"
 	elog "to upstream behaviour. Existing installs keep their current conf.d;"
 	elog "merge the new default with etc-update/dispatch-conf to pick it up."
+	elog
+	elog "A drop-in (10-network-online.conf) orders the dispatcher after"
+	elog "network-online.target, systemd-resolved, nss-lookup and time-sync so"
+	elog "startup-trigger hooks run once the network is usable. For that barrier"
+	elog "to actually wait, enable a wait-online service:"
+	elog "  systemctl enable systemd-networkd-wait-online.service"
+	elog "Even so, hooks contacting remote services should tolerate transient"
+	elog "boot-time failures (e.g. net-dns/samba-ad-dns-register retries)."
 }
