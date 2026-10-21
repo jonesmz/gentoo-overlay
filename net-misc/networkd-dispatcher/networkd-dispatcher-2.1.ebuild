@@ -53,7 +53,9 @@ src_install() {
 
 	# systemd service and its EnvironmentFile.
 	systemd_dounit "${PN}.service"
-	newconfd "${PN}.conf" "${PN}.conf"
+	# Ship our own conf.d instead of upstream's empty one so that
+	# --run-startup-triggers is enabled by default (see files/*.conf).
+	newconfd "${FILESDIR}/${PN}.conf" "${PN}.conf"
 
 	# State directories that dispatcher scans. /etc for local overrides,
 	# /usr/lib for package-provided scripts. Create the full set upstream
@@ -83,4 +85,11 @@ pkg_postinst() {
 	elog
 	elog "Command-line options can be set via networkd_dispatcher_args in"
 	elog "  /etc/conf.d/networkd-dispatcher.conf"
+	elog
+	elog "This overlay enables --run-startup-triggers by default in that file,"
+	elog "so hooks also fire for links already in their operational state when"
+	elog "the dispatcher starts (at boot, or after restarting systemd-networkd),"
+	elog "not only on a later state transition. Remove the flag there to revert"
+	elog "to upstream behaviour. Existing installs keep their current conf.d;"
+	elog "merge the new default with etc-update/dispatch-conf to pick it up."
 }
