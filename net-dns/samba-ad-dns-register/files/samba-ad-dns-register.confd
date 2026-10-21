@@ -3,6 +3,14 @@
 # This file is sourced by the networkd-dispatcher hook
 # /etc/networkd-dispatcher/routable.d/50-samba-ad-dns-register
 # whenever an interface becomes routable.
+#
+# NOTE: this is NOT the networkd-dispatcher daemon config. The hook only runs
+# when a link TRANSITIONS into the routable state. For it to also fire at boot
+# or after 'systemctl restart systemd-networkd' (when the link is already
+# routable), enable startup triggers in the dispatcher's own config,
+# /etc/conf.d/networkd-dispatcher.conf:
+#     networkd_dispatcher_args="--run-startup-triggers"
+# then restart networkd-dispatcher.service.
 
 # Set to "no" to disable AD DNS registration without removing the package.
 #SAMBA_AD_DNS_REGISTER_ENABLE="yes"

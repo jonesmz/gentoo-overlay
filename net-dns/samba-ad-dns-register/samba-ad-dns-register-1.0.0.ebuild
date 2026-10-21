@@ -47,6 +47,17 @@ pkg_postinst() {
 	elog "      systemctl enable --now networkd-dispatcher.service"
 	elog "  - Working Kerberos (clock in sync with the DCs, DCs resolvable)."
 	elog
+	elog "IMPORTANT: enable networkd-dispatcher startup triggers."
+	elog "  networkd-dispatcher only runs routable.d/ hooks on an operational-"
+	elog "  state TRANSITION into 'routable'. A link that is already routable"
+	elog "  (e.g. after 'systemctl restart systemd-networkd', or at boot before"
+	elog "  the dispatcher started) will NOT fire the hook unless startup"
+	elog "  triggers are enabled. Add to /etc/conf.d/networkd-dispatcher.conf:"
+	elog "      networkd_dispatcher_args=\"--run-startup-triggers\""
+	elog "  then: systemctl restart networkd-dispatcher.service"
+	elog "  Without this, registration still fires on genuine link up/down and"
+	elog "  DHCP IP changes, but not on boot or a plain networkd restart."
+	elog
 	elog "Optional configuration: /etc/conf.d/samba-ad-dns-register"
 	elog "  Restrict to specific interfaces with SAMBA_AD_DNS_REGISTER_IFACES,"
 	elog "  or disable with SAMBA_AD_DNS_REGISTER_ENABLE=\"no\"."
